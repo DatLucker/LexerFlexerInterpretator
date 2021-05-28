@@ -1,6 +1,6 @@
 class Elem:
-    def __init__ (self, val = None):
-        self.value = val
+    def __init__ (self,value = None):
+        self.value = value
         self.nextelem = None
 
 class LinkedList:
@@ -10,23 +10,22 @@ class LinkedList:
             self.push(elem)
 
     def __repr__(self):
-        curr = self.head
-        string = '[ '
-        while curr is not None:
-            string += f'{curr.value},'
-            curr = curr.nextlem
-        string += ']'
-
-        return string
+        current = self.head
+        str = '[ '
+        while current is not None:
+            str += f'{current.value},'
+            current = current.nextelem
+        str += ']'
+        return str
 
 
     def contains(self, value):
-        lastlem = self.head
-        while (lastlem):
-            if value == lastlem.value:
+        lastelem = self.head
+        while (lastelem):
+            if value == lastelem.value:
                 return True
             else:
-                lastlem = lastlem.nextlem;
+                lastelem = lastelem.nextelem
         return False
 
     def push(self, value):
@@ -34,37 +33,37 @@ class LinkedList:
         if self.head is None:
             self.head = newelem
             return
-        lastlem = self.head
-        while (lastlem.nextelem):
-            lastlem = lastlem.nextelem
-        lastlem.nextelem = newelem
+        lastelem = self.head
+        while (lastelem.nextelem):
+            lastelem = lastelem.nextelem
+        lastelem.nextelem = newelem
 
     def get(self, index):
-        lastlem = self.head
+        lastelem = self.head
         elemIndex = 0
         while elemIndex <= index:
             if elemIndex == index:
-                return lastlem.value
+                return lastelem.value
             elemIndex = elemIndex + 1
-            lastlem = lastlem.nextlem
+            lastelem = lastelem.nextelem
 
     def remove(self, value):
-        curr = self.head
-        if curr is not None:
-            if curr.value == value:
-                self.head = curr.nextlem
+        current = self.head
+        if current is not None:
+            if current.value == value:
+                self.head = current.nextelem
                 return
-        while curr is not None:
-            if curr.value == value:
+        while current is not None:
+            if current.value == value:
                 break
-            last = curr
-            curr = curr.nextelem
-        if curr == None:
+            last = current
+            current = current.nextelem
+        if current == None:
             return
-        last.nextlem = curr.nextelem
+        last.nextelem = current.nextelem
 
     def printList(self):
         current = self.head
         while current is not None:
             print(current.value,end=' ')
-            current = current.nextlem
+            current = current.nextelem

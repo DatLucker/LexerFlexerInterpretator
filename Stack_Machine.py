@@ -2,7 +2,7 @@ from LinkedList import LinkedList
 
 class StackMachine:
     def __init__(self, input):
-        self.stck = []
+        self.stack = []
         self.input = input
         self.index = -1
         self.variables = {}
@@ -25,39 +25,39 @@ class StackMachine:
             print(f'Variable {a} is not defined')
             raise BaseException
 
-    def bin_log_op(self, Z, X, operand):
-        if operand == '>':
-            return X > Z
-        if operand == '<':
-            return X < Z
-        if operand == '>=':
-            return X >= Z
-        if operand == '<=':
-            return X <= Z
-        if operand == '==':
-            return X == Z
-        if operand == '!=':
-            return X != Z
-        if operand == '&&':
-            return X & Z
-        if operand == '||':
-            return X | Z
+    def bin_log_op(self,b,a,op):
+        if op == '>':
+            return a > b
+        if op == '<':
+            return a < b
+        if op == '>=':
+            return a >= b
+        if op == '<=':
+            return a <= b
+        if op == '==':
+            return a == b
+        if op == '!=':
+            return a != b
+        if op == '&&':
+            return a & b
+        if op == '||':
+            return a | b
 
-    def bin_op(self, Z, X, operand):
-        self.is_defined(X)
-        if operand == '+':
-            return X + Z
-        if operand == '-':
-            return X - Z
-        if operand == '*':
-            return X * Z
-        if operand == '/':
-            return X / Z
+    def bin_op(self,b,a,op):
+        self.is_defined(a)
+        if op == '+':
+            return a+b
+        if op == '-':
+            return a-b
+        if op == '*':
+            return a*b
+        if op == '/':
+            return a/b
 
-    def assign_op(self, Z, X):
+    def assign_op(self, b, a):
         try:
-            self.is_defined(Z)
-            self.variables[X] = Z
+            self.is_defined(b)
+            self.variables[a] = b
         except:
             raise BaseException
 
@@ -78,73 +78,73 @@ class StackMachine:
         try:
             while self.index < len(self.input):
                 if self.current_elem[1] == 'INT':
-                    self.stck.append(int(self.current_elem[0]))
+                    self.stack.append(int(self.current_elem[0]))
                     self.advance()
                 elif self.current_elem[1] == 'VAR':
                     if self.current_elem[0] not in self.variables:
                         self.variables[self.current_elem[0]] = 'Undefined'
-                    self.stck.append(self.current_elem[0])
+                    self.stack.append(self.current_elem[0])
                     self.advance()
                 elif self.current_elem[1] == 'LOGICAL_OP':
-                    Z = self.stck.pop()
-                    X = self.stck.pop()
-                    if Z in self.variables.keys():
-                        self.is_defined(Z)
-                        Z = self.variables[Z]
-                    if X in self.variables.keys():
-                        self.is_defined(X)
-                        X = self.variables[X]
-                    self.stck.append(self.bin_log_op(Z, X, self.current_elem[0]))
+                    b = self.stack.pop()
+                    a = self.stack.pop()
+                    if b in self.variables.keys():
+                        self.is_defined(b)
+                        b = self.variables[b]
+                    if a in self.variables.keys():
+                        self.is_defined(a)
+                        a = self.variables[a]
+                    self.stack.append(self.bin_log_op(b, a, self.current_elem[0]))
                     self.advance()
                 elif self.current_elem[1] == 'PLUS' or self.current_elem[1] == 'MINUS' or self.current_elem[1] == 'MUL' or self.current_elem[1] == 'DIV':
-                    Z = self.stck.pop()
-                    X = self.stck.pop()
-                    if Z in self.variables.keys():
-                        self.is_defined(Z)
-                        Z = self.variables[Z]
-                    if X in self.variables.keys():
-                        self.is_defined(X)
-                        X = self.variables[X]
-                    self.stck.append(self.bin_op(Z, X, self.current_elem[0]))
+                    b = self.stack.pop()
+                    a = self.stack.pop()
+                    if b in self.variables.keys():
+                        self.is_defined(b)
+                        b = self.variables[b]
+                    if a in self.variables.keys():
+                        self.is_defined(a)
+                        a = self.variables[a]
+                    self.stack.append(self.bin_op(b,a,self.current_elem[0]))
                     self.advance()
                 elif self.current_elem[1] == 'ASSIGN':
-                    Z = self.stck.pop()
-                    if Z in self.variables.keys():
-                        self.is_defined(Z)
-                        Z = self.variables[Z]
-                    self.assign_op(Z, self.stck.pop())
+                    b = self.stack.pop()
+                    if b in self.variables.keys():
+                        self.is_defined(b)
+                        b = self.variables[b]
+                    self.assign_op(b, self.stack.pop())
                     self.advance()
                 elif self.current_elem[0] == '!':
-                    self.jmp(self.stck.pop())
+                    self.jmp(self.stack.pop())
                 elif self.current_elem[0] == '!F':
-                    pos = self.stck.pop()
-                    f = self.stck.pop()
+                    pos = self.stack.pop()
+                    f = self.stack.pop()
                     self.jmpf(pos, f)
                 elif self.current_elem[1] in ('LINKED_LIST_KW','function_name'):
                     args = []
                     i = self.current_elem[2] # число параметров функции
                     while(i != 0):
-                        args.insert(0, self.stck.pop())
+                        args.insert(0, self.stack.pop())
                         i -= 1
                     if len(args) == 1:
                         args = args[0]
                     if self.current_elem[1] == 'LINKED_LIST_KW':
-                        self.stck.append(LinkedList(args))
+                        self.stack.append(LinkedList(args))
                         self.advance()
                     elif self.current_elem[0] == 'push':
-                        self.variables[self.stck.pop()].push(args)
+                        self.variables[self.stack.pop()].push(args)
                         self.advance()
                     elif self.current_elem[0] == 'contains':
-                        self.stck.append(self.variables[self.stck.pop()].contains(args))
+                        self.stack.append(self.variables[self.stack.pop()].contains(args))
                         self.advance()
                     elif self.current_elem[0] == 'get':
-                        X = self.stck.pop()
-                        lst = self.variables[X]
+                        a = self.stack.pop()
+                        lst = self.variables[a]
                         c = lst.get(args)
-                        self.stck.append(c)
+                        self.stack.append(c)
                         self.advance()
                     elif self.current_elem[0] == 'remove':
-                        self.variables[self.stck.pop()].remove(args)
+                        self.variables[self.stack.pop()].remove(args)
                         self.advance()
         except BaseException:
             raise BaseException

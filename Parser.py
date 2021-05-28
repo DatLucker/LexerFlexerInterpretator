@@ -23,35 +23,35 @@ class Leaf:#терминал
         return f'{self.name} {self.value}\n'
 
 class CheckSyntax:
-    def __init__(self, tkns):
-        self.tkns = tkns
+    def __init__(self, tokens):
+        self.tokens = tokens
         self.height = 0
-        self.buff = []    #нужен для перевода в ПОЛИЗ операций присваивания, функций и методов
+        self.buffer = []    #нужен для перевода в ПОЛИЗ операций присваивания, функций и методов
         self.index = -1
         self.ret_index = 0  #индекс возврата
         self.advance()
 
     def advance(self):
-        if self.index < len(self.tkns):
+        if self.index < len(self.tokens):
             self.index += 1
-            if self.index == len(self.tkns):
+            if self.index == len(self.tokens):
                 self.current_tok = ('',None)
             else:
-                self.current_tok = self.tkns[self.index]
+                self.current_tok = self.tokens[self.index]
 
-    def lng(self):
-        lng = Node('lng')
+    def lang(self):
+        lang = Node('lang')
         prev = 0
-        while(self.index < len(self.tkns)):
+        while(self.index < len(self.tokens)):
             try:
                 self.height=1
                 expr = self.expr(prev)
-                lng.childs.append(expr)
-                lng.rpn += expr.rpn.copy()
+                lang.childs.append(expr)
+                lang.rpn += expr.rpn.copy()
                 prev += len(expr.rpn)
             except BaseException:
                 raise BaseException
-        return lng
+        return lang
 
     def expr(self,prev):
         expr = Node('expr',height=self.height)
@@ -67,7 +67,7 @@ class CheckSyntax:
             except BaseException:
                 self.index = self.ret_index - 1;
                 self.advance()
-                self.buff.clear()
+                self.buffer.clear()
                 if self.current_tok[1] == 'VAR':
                     try:
                         function = self.function()
@@ -81,7 +81,7 @@ class CheckSyntax:
                     except BaseException:
                         self.index = self.ret_index - 1;
                         self.advance()
-                        self.buff.clear()
+                        self.buffer.clear()
                         if self.current_tok[1] == 'VAR':
                             try:
                                 method = self.method()
@@ -119,17 +119,17 @@ class CheckSyntax:
         assign_expr = Node('assign_expr','=',self.height)
         try:
             self.check_next_t('VAR')
-            self.buff.append(self.current_tok)
+            self.buffer.append(self.current_tok)
             self.height += 1
             assign_expr.childs.append(Leaf(self.current_tok[1], self.current_tok[0],self.height))
             self.height -= 1
             self.advance()
             self.check_next_t('ASSIGN')
-            self.buff.append(self.current_tok)
+            self.buffer.append(self.current_tok)
             self.advance()
             self.height += 1
             self.ret_index = self.index
-            if self.current_tok[1] == 'VAR' and self.tkns[self.index + 1][1] == 'POINT':
+            if self.current_tok[1] == 'VAR' and self.tokens[self.index + 1][1] == 'POINT':
                 assign_expr.childs.append(self.method())
             elif self.current_tok[1] in ('LINKED_LIST_KW'):
                 assign_expr.childs.append(self.function())
@@ -154,11 +154,11 @@ class CheckSyntax:
                 math_expr.childs.append(self.value())
             except:
                 math_expr.childs.append(self.math_expr_wbr())
-            while (len(self.tkns) > 1):
+            while (len(self.tokens) > 1):
                 try:
                     self.check_next_t(('PLUS', 'MINUS', 'DIV', 'MUL'))
                     math_expr.value = self.current_tok[0]
-                    self.buff.append(self.current_tok)
+                    self.buffer.append(self.current_tok)
                     self.advance()
                     try:
                         self.height += 1
@@ -176,11 +176,11 @@ class CheckSyntax:
         try:
             self.height += 1
             logical_expr.childs.append(self.value())
-            while (len(self.tkns) != 1):
+            while (len(self.tokens) != 1):
                 try:
                     self.check_next_t('LOGICAL_OP')
                     logical_expr.value = self.current_tok[0]
-                    self.buff.append(self.current_tok)
+                    self.buffer.append(self.current_tok)
                     self.advance()
                     try:
                         self.height += 1
@@ -198,12 +198,12 @@ class CheckSyntax:
         self.height += 1
         try:
                 self.check_next_t('LP')
-                self.buff.append(self.current_tok)
+                self.buffer.append(self.current_tok)
                 self.advance()
                 math_expr = self.math_expr()
                 math_expr_wbr.childs.append(math_expr)
                 self.check_next_t('RP')
-                self.buff.append(self.current_tok)
+                self.buffer.append(self.current_tok)
                 self.advance()
                 self.height-=1
                 math_expr_wbr.rpn = math_expr.rpn.copy()
@@ -245,10 +245,10 @@ class CheckSyntax:
         try:
             try:
                 self.check_next_t('INT')
-                self.buff.append(self.current_tok)
+                self.buffer.append(self.current_tok)
             except:
                 self.check_next_t('VAR')
-                self.buff.append(self.current_tok)
+                self.buffer.append(self.current_tok)
             value.name = self.current_tok[1]
             value.value = self.current_tok[0]
             self.advance()
@@ -344,7 +344,7 @@ class CheckSyntax:
             method = Node('method',height = self.height)
             self.height += 1
             self.check_next_t('VAR')
-            self.buff.append(self.current_tok)
+            self.buffer.append(self.current_tok)
             self.advance()
             self.check_next_t('POINT')
             self.advance()
@@ -364,15 +364,15 @@ class CheckSyntax:
                 lst = list(self.current_tok)
                 lst[1] = 'function_name'
                 self.current_tok = tuple(lst)
-            self.buff.append(self.current_tok)
+            self.buffer.append(self.current_tok)
             self.advance()
             self.check_next_t('LP')
-            self.buff.append(self.current_tok)
+            self.buffer.append(self.current_tok)
             self.advance()
             function.childs.append(self.args())
             self.height -= 1
             self.check_next_t('RP')
-            self.buff.append(self.current_tok)
+            self.buffer.append(self.current_tok)
             self.advance()
             self.height -= 1
             return function
@@ -405,9 +405,9 @@ class CheckSyntax:
             raise BaseException
 
     def to_rpn(self, expr):
-        parser = Parser(self.buff)
+        parser = Parser(self.buffer)
         expr.rpn = parser.rpn()
-        self.buff.clear()
+        self.buffer.clear()
 
 
 class Parser:

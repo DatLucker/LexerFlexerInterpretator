@@ -3,26 +3,26 @@ import re
 
 def lex(characters):
     pos = 0
-    tkns = []
+    tokens = []
     while pos < len(characters):
-        for tokenExpr in tokenExprs:
-            pattern, tag , priority= tokenExpr
+        for token_expr in token_exprs:
+            pattern, tag , priority= token_expr
             regex = re.compile(pattern)
             match = regex.match(characters, pos)
             if match:
                 text = match[0]
                 if tag:
                     token = (text, tag, priority)
-                    tkns.append(token)
+                    tokens.append(token)
                 break
         if not match:
             sys.stderr.write('Illegal character: %s\n' % characters[pos])
             sys.exit(1)
         else:
             pos = match.end()
-    return tkns
+    return tokens
 
-tokenExprs = [
+token_exprs = [
     (r'[ \t\n]+', None, None),
     (r'#[^\n]*', None, None),
     (r'if','IF_KW',None),

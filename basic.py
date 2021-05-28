@@ -2,29 +2,29 @@ from Lexer import lex
 from Parser import CheckSyntax, Parser
 from Stack_Machine import StackMachine
 import sys
-string = input('>>> ')
-while string != 'exit':
+str = input('>>> ')
+while str != 'exit':
     try:
-        tokens = lex(string)
+        tokens = lex(str)
         print(tokens)
-        pars = CheckSyntax(tokens)
-        lng = pars.lng()
-        print(lng)
-        for char in lng.rpn:
+        parser = CheckSyntax(tokens)
+        lang = parser.lang()
+        print(lang)
+        for char in lang.rpn:
             print(char[0],end = '\t')
         print()
-        for i in range(len(lng.rpn)):
+        for i in range(len(lang.rpn)):
             print(i,end = '\t')
         print()
     except:
         print('Syntax error')
     try:
-        machine = StackMachine(lng.rpn)
-        machine.run()
-        for var in machine.variables.items():
+        sm = StackMachine(lang.rpn)
+        sm.run()
+        for var in sm.variables.items():
             print(var)
     except BaseException:
         pass
-    string = input('>>> ')
+    str = input('>>> ')
 sys.exit(0)
 
