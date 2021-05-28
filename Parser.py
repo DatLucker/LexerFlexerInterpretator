@@ -39,19 +39,19 @@ class CheckSyntax:
             else:
                 self.current_tok = self.tkns[self.index]
 
-    def lang(self):
-        lang = Node('lang')
+    def lng(self):
+        lng = Node('lng')
         prev = 0
         while(self.index < len(self.tkns)):
             try:
                 self.height=1
                 expr = self.expr(prev)
-                lang.childs.append(expr)
-                lang.rpn += expr.rpn.copy()
+                lng.childs.append(expr)
+                lng.rpn += expr.rpn.copy()
                 prev += len(expr.rpn)
             except BaseException:
                 raise BaseException
-        return lang
+        return lng
 
     def expr(self,prev):
         expr = Node('expr',height=self.height)
@@ -131,7 +131,7 @@ class CheckSyntax:
             self.ret_index = self.index
             if self.current_tok[1] == 'VAR' and self.tkns[self.index + 1][1] == 'POINT':
                 assign_expr.childs.append(self.method())
-            elif self.current_tok[1] in ('VAR', 'LINKED_LIST_KW'):
+            elif self.current_tok[1] in ('LINKED_LIST_KW'):
                 assign_expr.childs.append(self.function())
             else:
                 self.index = self.ret_index - 1
