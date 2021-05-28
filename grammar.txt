@@ -1,0 +1,32 @@
+lang -> expr+
+expr -> assign_expr | if_expr | while_expr | function | method
+assign_expr -> VAR ASSIGN_OP (math_expr | function | method) CLOSE
+value -> INT | VAR
+
+function -> function_name LP args RP
+function_name -> LINKED_LIST_KW | VAR
+method -> VAR POINT function
+
+
+args = (value)*
+
+while_expr -> WHILE_KW if_head if_body
+
+
+if_expr -> IF_KW if_head if_body (ELSE_KW else_body)?
+if_head -> LP logical_expr RP
+if_body -> LB expr+ RB
+else_body -> LB expr+ RB
+
+
+
+logical_expr -> value (LOGICAL_OP logical_expr)*
+math_expr -> (value | math_expr_wbr)(OP math_expr)*
+math_expr_wbr -> LP math_expr RP
+
+
+
+
+
+
+
